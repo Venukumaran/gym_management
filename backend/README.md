@@ -61,6 +61,7 @@ GET /api/members/expiring
 
 ## Project Structure
 
+```text
 backend/
 ├── pom.xml
 ├── .mvn/
@@ -79,7 +80,7 @@ backend/
     │   └── resources/
     │       └── application.properties
     └── test/
-
+```
 ## Running the Backend
 
 Configure the MySQL database in `application.properties` and run the Spring Boot application from IntelliJ IDEA.
