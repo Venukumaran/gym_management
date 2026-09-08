@@ -1,22 +1,38 @@
-# IRONLOG — Gym Owner Console (Frontend)
+# IRONLOG — Gym Owner Console
 
-A static HTML + Bootstrap 5 + vanilla JS frontend for your Spring Boot gym backend.
-No build step — just open it in a browser or serve the folder statically.
+IRONLOG is a gym management dashboard that I built to help gym owners manage and monitor their members from a single, simple interface.
 
-## What's included
+The frontend is built using **HTML, Bootstrap 5, and Vanilla JavaScript** and communicates with my Spring Boot backend through REST APIs.
 
-```
-gym-frontend/
-├── index.html              # Owner login page
-├── dashboard.html           # Owner dashboard (stats, search, filters)
+## Overview
+
+I designed IRONLOG as an owner-focused console where I can:
+
+- Log in securely as a gym owner
+- View overall membership statistics
+- View active and expired memberships
+- Track members whose memberships are expiring soon
+- Search members by name
+- Filter members based on status, plan, gender, and age
+- View recently joined members
+- Review member information from one dashboard
+
+The application uses JWT-based authentication, so authenticated requests are sent to my backend with the required authorization token.
+
+## Project Structure
+
+```text
+frontend/
+├── index.html
+├── dashboard.html
 ├── assets/
-│   ├── css/style.css        # All styling (dark "IronLog" theme)
+│   ├── css/
+│   │   └── style.css
 │   └── js/
-│       ├── config.js        # API base URL + auth/session helpers
-│       ├── login.js         # Login page logic
-│       └── dashboard.js      # Dashboard logic
+│       ├── config.js
+│       ├── login.js
+│       └── dashboard.js
 └── README.md
-```
 
 ## 1. Point it at your backend
 
@@ -26,67 +42,7 @@ Open `assets/js/config.js` and set your backend URL:
 const API_BASE_URL = "http://localhost:8080";
 ```
 
-## 2. ⚠️ Enable CORS on the backend
-
-Your `OwnerController` already has `@CrossOrigin(origins = "*")`, but **`gymController`
-(the `/api/members/**` endpoints) does not**. Since the frontend runs on a different
-origin (a file:// page or a different port), the browser will block those requests
-unless the backend allows it.
-
-Easiest fix — add a global CORS config in your Spring Boot project:
-
-```java
-package gym.demo.config;
-
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
-
-import java.util.List;
-
-@Configuration
-public class CorsConfig {
-
-    @Bean
-    public CorsFilter corsFilter() {
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of("*"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-        return new CorsFilter(source);
-    }
-}
-```
-
-Also make sure your `SecurityConfig` doesn't block the CORS pre-flight `OPTIONS`
-request — with the filter above and `httpBasic`/JWT in place this normally isn't
-an issue, but if you see 401s specifically on `OPTIONS`, add:
-
-```java
-.authorizeHttpRequests(auth -> auth
-    .requestMatchers("/auth/login").permitAll()
-    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-    .anyRequest().authenticated()
-)
-```
-
-## 3. Run it
-
-Any static file server works. Two easy options:
-
-- **VS Code**: install the "Live Server" extension, right-click `index.html` → "Open with Live Server".
-- **Python**: `cd gym-frontend && python3 -m http.server 5500`, then open `http://localhost:5500`.
-
-Opening `index.html` directly by double-clicking (`file://...`) usually also works,
-but a local server is more reliable for `fetch()` calls.
-
-## 4. Log in
+## 2. Log in
 
 Use an existing `Owner` row's email/password (the ones stored in your `owners`
 table, hashed with BCrypt via `PasswordConfig`). There's no public "sign up" —
@@ -115,6 +71,23 @@ Every request after login sends `Authorization: Bearer <token>` — matching you
 session and returns you to the login page.
 
 ## Notes & things you may want to extend
+
+Current Scope
+
+The current version focuses on the gym owner's dashboard and member management experience.
+
+The frontend currently provides:
+
+Owner authentication
+Membership statistics
+Member search
+Member filtering
+Membership status tracking
+Recently joined member information
+Expiring membership information
+Dashboard-based member monitoring
+
+Some profile-related display information, such as the gym name and about information, is currently stored locally in the browser.
 
 - **Gym name / about / photo** are stored only in the browser (`localStorage`) and
   are editable inline on the dashboard — your backend's `Owner` entity currently
